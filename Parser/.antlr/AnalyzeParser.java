@@ -18,10 +18,10 @@ public class AnalyzeParser extends Parser {
 	public static final int
 		T__0=1, T__1=2, T__2=3, T__3=4, GROUP=5, NAME=6, WS=7, ANY=8;
 	public static final int
-		RULE_parse = 0, RULE_var_group = 1, RULE_var = 2, RULE_args = 3, RULE_text = 4;
+		RULE_parse = 0, RULE_var_group = 1, RULE_var = 2, RULE_arg = 3, RULE_text = 4;
 	private static String[] makeRuleNames() {
 		return new String[] {
-			"parse", "var_group", "var", "args", "text"
+			"parse", "var_group", "var", "arg", "text"
 		};
 	}
 	public static final String[] ruleNames = makeRuleNames();
@@ -249,11 +249,11 @@ public class AnalyzeParser extends Parser {
 		public TerminalNode WS(int i) {
 			return getToken(AnalyzeParser.WS, i);
 		}
-		public List<ArgsContext> args() {
-			return getRuleContexts(ArgsContext.class);
+		public List<ArgContext> arg() {
+			return getRuleContexts(ArgContext.class);
 		}
-		public ArgsContext args(int i) {
-			return getRuleContext(ArgsContext.class,i);
+		public ArgContext arg(int i) {
+			return getRuleContext(ArgContext.class,i);
 		}
 		public VarContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -326,7 +326,7 @@ public class AnalyzeParser extends Parser {
 					}
 
 					setState(47);
-					args();
+					arg();
 					setState(49);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
@@ -361,7 +361,7 @@ public class AnalyzeParser extends Parser {
 	}
 
 	@SuppressWarnings("CheckReturnValue")
-	public static class ArgsContext extends ParserRuleContext {
+	public static class ArgContext extends ParserRuleContext {
 		public TerminalNode NAME() { return getToken(AnalyzeParser.NAME, 0); }
 		public TerminalNode GROUP() { return getToken(AnalyzeParser.GROUP, 0); }
 		public Var_groupContext var_group() {
@@ -370,15 +370,15 @@ public class AnalyzeParser extends Parser {
 		public VarContext var() {
 			return getRuleContext(VarContext.class,0);
 		}
-		public ArgsContext(ParserRuleContext parent, int invokingState) {
+		public ArgContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_args; }
+		@Override public int getRuleIndex() { return RULE_arg; }
 	}
 
-	public final ArgsContext args() throws RecognitionException {
-		ArgsContext _localctx = new ArgsContext(_ctx, getState());
-		enterRule(_localctx, 6, RULE_args);
+	public final ArgContext arg() throws RecognitionException {
+		ArgContext _localctx = new ArgContext(_ctx, getState());
+		enterRule(_localctx, 6, RULE_arg);
 		try {
 			setState(63);
 			_errHandler.sync(this);

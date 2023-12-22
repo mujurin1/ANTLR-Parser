@@ -68,7 +68,7 @@ namespace Parser
                     Console.WriteLine($"{indentStr}text : {text.Text}");
                     break;
                 case ResultGroup group:
-                    Console.WriteLine($"{indentStr}group: {group.Group}");
+                    Console.WriteLine($"{indentStr}group: ${group.Group}");
                     break;
                 case ResultVar var:
                     Console.WriteLine($"{indentStr}var  : {var.Name}");
@@ -89,13 +89,13 @@ namespace Parser
 
             foreach (var item in args) {
                 switch (item) {
-                    case VarArgsText text:
+                    case VarArgText text:
                         Console.WriteLine($"{indentStr}text : {text.Text}");
                         break;
-                    case VarArgsGroup group:
-                        ToString(group.Group, indent);
+                    case VarArgGroup group:
+                        Console.WriteLine($"{indentStr}group: ${group.Group}");
                         break;
-                    case VarArgsVar var:
+                    case VarArgVar var:
                         ToString(var.Var, indent);
                         break;
                 }

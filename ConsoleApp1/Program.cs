@@ -12,7 +12,7 @@ class Program
 {
     public static void Main()
     {
-        var res = Replacer.Replace("aa$1$aaa${ repeat,  10, a,  ${rnd,$1,1}  }");
+        var res = Replacer.Replace("aa$1$aaa${ repeat,  $10, 1,  ${rnd,$1,1}  }");
         Replacer.ToString(res);
 
         Console.WriteLine();
@@ -100,11 +100,11 @@ class Program
     public static string ArgToText(IVarArg arg, Match match)
     {
         switch (arg) {
-            case VarArgsText text:
+            case VarArgText text:
                 return text.Text;
-            case VarArgsGroup group:
-                return match.Groups[group.Group.Group].Value;
-            case VarArgsVar var:
+            case VarArgGroup group:
+                return match.Groups[group.Group].Value;
+            case VarArgVar var:
                 return ResutToText(var.Var, match);
         }
 

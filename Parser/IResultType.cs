@@ -37,50 +37,50 @@ namespace Parser
             Context = var;
 
             Name = var.NAME().GetText();
-            Args = var.args()
+            Args = var.arg()
                 .Select(Convert)
                 .ToArray();
         }
 
-        public static IVarArg Convert(ArgsContext args)
+        public static IVarArg Convert(ArgContext args)
         {
             if (args.var_group() != null) {
-                return new VarArgsGroup(args);
+                return new VarArgGroup(args);
             } else if (args.var() != null) {
-                return new VarArgsVar(args);
+                return new VarArgVar(args);
             }
-            return new VarArgsText(args);
+            return new VarArgText(args);
         }
     }
 
     public interface IVarArg { }
-    public class VarArgsText : IVarArg
+    public class VarArgText : IVarArg
     {
-        public ArgsContext Context { get; }
+        public ArgContext Context { get; }
         public string Text { get; }
-        public VarArgsText(ArgsContext text)
+        public VarArgText(ArgContext text)
         {
             Context = text;
             Text = text.GetText();
         }
     }
 
-    public class VarArgsGroup : IVarArg
+    public class VarArgGroup : IVarArg
     {
-        public ArgsContext Context { get; }
-        public ResultGroup Group { get; }
-        public VarArgsGroup(ArgsContext group)
+        public ArgContext Context { get; }
+        public int Group { get; }
+        public VarArgGroup(ArgContext group)
         {
             Context = group;
-            Group = new ResultGroup(group.var_group());
+            Group = int.Parse(group.var_group().GROUP().GetText());
         }
     }
 
-    public class VarArgsVar : IVarArg
+    public class VarArgVar : IVarArg
     {
-        public ArgsContext Context { get; }
+        public ArgContext Context { get; }
         public ResultVar Var { get; }
-        public VarArgsVar(ArgsContext var)
+        public VarArgVar(ArgContext var)
         {
             Context = var;
             Var = new ResultVar(var.var());

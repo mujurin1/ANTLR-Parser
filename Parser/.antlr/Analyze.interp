@@ -24,7 +24,7 @@ rule names:
 parse
 var_group
 var
-args
+arg
 text
 
 

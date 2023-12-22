@@ -25,12 +25,12 @@ var_group: '$' GROUP | '$' '{' WS? GROUP WS? '}';
  1つ目 ($x ${x, ..} のx) が NAME になる
  2つ目以降 (${?, x,x,...} のx) が args になる
  */
-var: '$' NAME | '$' '{' WS? NAME WS? (',' WS? args WS?)* '}';
+var: '$' NAME | '$' '{' WS? NAME WS? (',' WS? arg WS?)* '}';
 /* ${?, x, x,} の x 部分
  args は $1 や ${x} なども可能
  つまり var は ${a, ${b, ${c} } } のように変数の入れ子が可能
  */
-args: NAME | GROUP | var_group | var;
+arg: NAME | GROUP | var_group | var;
 // どれにも一致しない場合textになる
 text: '$' | (~'$')+;
 
