@@ -1,1 +1,1 @@
-aa$1$aaa${ repeat,  10, a,  ${rnd,$1,1}  }
+$1$a${A}${rnd,$1}${a,b,c}${a,${a,b}}

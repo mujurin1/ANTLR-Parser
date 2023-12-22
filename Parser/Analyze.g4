@@ -17,7 +17,7 @@ WS: [ \u3000\r\n\t]+; // \u3000 は全角スペース
 ANY: .;
 
 /** parser */
-parse: ( var_group | var | text)*;
+parse: (var_group | var | text)*;
 
 // $1 ${1}  数字部分が GROUP になる
 var_group: '$' GROUP | '$' '{' WS? GROUP WS? '}';
