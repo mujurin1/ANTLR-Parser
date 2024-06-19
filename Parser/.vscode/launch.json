@@ -2,11 +2,20 @@
   "version": "1.0.0",
   "configurations": [
     {
-      "name": "Debug ANTLR4 grammar", // 任意の名前
+      "name": "Debug ANTLR4", // 任意の名前
       "type": "antlr-debug", // 決め打ち(多分)
       "request": "launch", // 決め打ち(多分)
       "input": "test.txt", // 入力となるテキストを記述したファイル
       "grammar": "Analyze.g4", // 使用するグラマーファイル
+      "printParseTree": true, // デバッグ結果をデバッグコンソールに表示するか
+      "visualParseTree": true // デバッグ結果をグラフィカルなツリーで表示するか
+    },
+    {
+      "name": "XXXX", // 任意の名前
+      "type": "antlr-debug", // 決め打ち(多分)
+      "request": "launch", // 決め打ち(多分)
+      "input": "test.txt", // 入力となるテキストを記述したファイル
+      "grammar": "T.g4", // 使用するグラマーファイル
       "printParseTree": true, // デバッグ結果をデバッグコンソールに表示するか
       "visualParseTree": true // デバッグ結果をグラフィカルなツリーで表示するか
     },

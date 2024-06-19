@@ -1,82 +1,80 @@
 ﻿using Parser;
-using System;
 using System.Text;
 using System.Text.RegularExpressions;
 
-/*
- * Parser は DLL なのでテスト用のプロジェクト
- * このプロジェクト (ConsoleApp1) は Parser を参照している
- */
+namespace ConsoleApp1;
 
 class Program
 {
     public static void Main()
     {
-        var res = Replacer.Replace("aa$1$aaa${ repeat,  $10, 1,  ${rnd,$1,1}  }");
+        var res = Replacer.Replace("$acd$1$$$-$$1$$$aaa$-${ repeat,  $10, 1,  ${rnd,a$,as$$d}  }おわり$$");
         Replacer.ToString(res);
 
         Console.WriteLine();
 
-        var res1 = Replace(
-            "10?:1d10   100?:1d100",
-            "1d([0-9]*)",
-            "${rnd, $1}"
-        );
-        Console.WriteLine(res1);
-
-        var res2 = Replace(
-            "わこつ",
-            ".*わこつ.*",
-            ">>$no $name さんいらっしゃい！$omikujiをあげるね！"
-        );
-        Console.WriteLine(res2);
+        foreach (var item in new (string, string, string)[] {
+            (
+                "1d1   1d1000",
+                "1d([1-9][0-9]*)",
+                "${rnd, $1}"
+            ), (
+                "1d1   1d1000",
+                "1d([1-9][0-9]*)",
+                "${rnd, $1}"
+            ), (
+                "1d1   1d1000",
+                "1d([1-9][0-9]*)",
+                "$-a{}$$a$rnd${rnd, $$}"
+            ),
+        }) {
+            var result = Replace(item.Item1, item.Item2, item.Item3);
+            Console.WriteLine(result);
+        }
     }
 
     public static string Replace(string target, string regex, string replace)
     {
-        return Regex.Replace(
-            target,
-            regex,
-            (match) => {
-                var res = Replacer.Replace(replace);
+        var match = Regex.Match(target, regex);
 
-                var sb = new StringBuilder();
-                foreach (var item in res) {
-                    switch (item) {
-                        case ResultText text:
-                            sb.Append(text.Text);
-                            break;
-                        case ResultGroup group:
-                            sb.Append(match.Groups[group.Group].Value);
-                            break;
-                        case ResultVar var:
-                            sb.Append(Vars(var, match));
-                            break;
-                    }
-                }
+        if (!match.Success) return target;
 
-                return sb.ToString();
+        var res = Replacer.Replace(replace);
+
+        var sb = new StringBuilder();
+        foreach (var item in res) {
+            switch (item) {
+                case ResultText text:
+                    sb.Append(text.Text);
+                    break;
+                case ResultGroup group:
+                    sb.Append(match.Groups[group.Group].Value);
+                    break;
+                case ResultVar var:
+                    sb.Append(Vars(var, match));
+                    break;
+                case ResultEscapeDoller or ResultSingleDoller _:
+                    sb.Append('$');
+                    break;
             }
-        );
+        }
+
+        return sb.ToString();
     }
 
     public static string ResutToText(IResultType item, Match match)
     {
-        switch (item) {
-            case ResultText text:
-                return text.Text;
-            case ResultGroup group:
-                return match.Groups[group.Group].Value;
-            case ResultVar var:
-                return Vars(var, match);
-        }
-
-        throw new Exception();
+        return item switch {
+            ResultText text => text.Text,
+            ResultGroup group => match.Groups[group.Group].Value,
+            ResultVar var => Vars(var, match),
+            _ => throw new Exception(),
+        };
     }
 
 
 
-    private static Random rnd = new Random();
+    private static Random rnd = new();
     public static string Vars(ResultVar var, Match match)
     {
         if (var.Name == "no") {
@@ -92,22 +90,17 @@ class Program
         } else if (var.Name == "omikuji") {
             return "[おみくじ]";
         }
-
     // どれにも一致しない場合は元々の文字をそのまま返す
     END: return var.Context.GetText();
     }
 
     public static string ArgToText(IVarArg arg, Match match)
     {
-        switch (arg) {
-            case VarArgText text:
-                return text.Text;
-            case VarArgGroup group:
-                return match.Groups[group.Group].Value;
-            case VarArgVar var:
-                return ResutToText(var.Var, match);
-        }
-
-        throw new Exception();
+        return arg switch {
+            VarArgText text => text.Text,
+            VarArgGroup group => match.Groups[group.Group].Value,
+            VarArgVar var => ResutToText(var.Var, match),
+            _ => throw new Exception(),
+        };
     }
 }

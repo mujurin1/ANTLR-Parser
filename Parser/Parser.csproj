@@ -1,28 +1,28 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<OutputType>Library</OutputType>
-		<TargetFramework>netstandard2.0</TargetFramework>
-		<PublishSingleFile>true</PublishSingleFile>
-		<SelfContained>true</SelfContained>
-		<StartAction>Program</StartAction>
-		
-		<!--
-			多分この記述は不要
-			<RootNamespace>AntlrTemplate</RootNamespace>
-		-->
-	</PropertyGroup>
+    <PropertyGroup>
+        <OutputType>Library</OutputType>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <PublishSingleFile>true</PublishSingleFile>
+        <SelfContained>true</SelfContained>
+        <StartAction>Program</StartAction>
 
-	<ItemGroup>
-		<!-- プログラムで利用する g4 ファイルを記述 -->
-		<Antlr4 Include="Analyze.g4">
-			<Package>Antlr4</Package>
-		</Antlr4>
-	</ItemGroup>
+        <!--
+            多分この記述は不要
+            <RootNamespace>AntlrTemplate</RootNamespace>
+        -->
+    </PropertyGroup>
 
-	<ItemGroup>
-		<PackageReference Include="Antlr4.Runtime.Standard" Version="4.13.1" />
-		<PackageReference Include="Antlr4BuildTasks" Version="12.7.0" />
-	</ItemGroup>
+    <ItemGroup>
+        <!-- プログラムで利用する g4 ファイルを記述 -->
+        <Antlr4 Include="Analyze.g4">
+            <Package>Antlr4</Package>
+        </Antlr4>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Antlr4.Runtime.Standard" Version="4.13.1" />
+        <PackageReference Include="Antlr4BuildTasks" Version="12.7.0" />
+    </ItemGroup>
 
 </Project>

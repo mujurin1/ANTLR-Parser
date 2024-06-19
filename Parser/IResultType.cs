@@ -3,27 +3,48 @@ using static Antlr4.AnalyzeParser;
 
 namespace Parser
 {
-    public interface IResultType { }
+    public abstract class IResultType
+    {
+        /// <summary>
+        /// 記述ミスの可能性があるか
+        /// </summary>
+        public bool Warning { get; protected set; } = false;
+    }
 
+    public class ResultEscapeDoller : IResultType
+    {
+        public Escape_dollerContext Context { get; }
+        public ResultEscapeDoller(Escape_dollerContext context)
+        {
+            Context = context;
+        }
+    }
+    public class ResultSingleDoller : IResultType
+    {
+        public Single_dollerContext Context { get; }
+        public ResultSingleDoller(Single_dollerContext context)
+        {
+            Context = context;
+        }
+    }
     public class ResultText : IResultType
     {
         public TextContext Context { get; }
         public string Text { get; }
-        public ResultText(TextContext text)
+        public ResultText(TextContext context)
         {
-            Context = text;
-            Text = text.GetText();
+            Context = context;
+            Text = context.GetText();
         }
     }
-
     public class ResultGroup : IResultType
     {
         public Var_groupContext Context { get; }
         public int Group { get; }
-        public ResultGroup(Var_groupContext group)
+        public ResultGroup(Var_groupContext context)
         {
-            Context = group;
-            Group = int.Parse(group.GROUP().GetText());
+            Context = context;
+            Group = int.Parse(context.GROUP().GetText());
         }
     }
 
@@ -32,58 +53,59 @@ namespace Parser
         public VarContext Context { get; }
         public string Name { get; }
         public IVarArg[] Args { get; }
-        public ResultVar(VarContext var)
+        public ResultVar(VarContext context)
         {
-            Context = var;
+            Context = context;
 
-            Name = var.NAME().GetText();
-            Args = var.arg()
+            Name = context.NAME().GetText();
+            Args = context.arg()
                 .Select(Convert)
                 .ToArray();
         }
 
-        public static IVarArg Convert(ArgContext args)
+        public static IVarArg Convert(ArgContext context)
         {
-            if (args.var_group() != null) {
-                return new VarArgGroup(args);
-            } else if (args.var() != null) {
-                return new VarArgVar(args);
+            if (context.var_group() != null) {
+                return new VarArgGroup(context);
+            } else if (context.var() != null) {
+                return new VarArgVar(context);
             }
-            return new VarArgText(args);
+            return new VarArgText(context);
         }
     }
 
-    public interface IVarArg { }
+
+
+    public abstract class IVarArg : IResultType { }
     public class VarArgText : IVarArg
     {
         public ArgContext Context { get; }
         public string Text { get; }
-        public VarArgText(ArgContext text)
+        public VarArgText(ArgContext context)
         {
-            Context = text;
-            Text = text.GetText();
+            Context = context;
+            Text = context.GetText();
+            Warning = context.arg_error() != null;
         }
     }
-
     public class VarArgGroup : IVarArg
     {
         public ArgContext Context { get; }
         public int Group { get; }
-        public VarArgGroup(ArgContext group)
+        public VarArgGroup(ArgContext context)
         {
-            Context = group;
-            Group = int.Parse(group.var_group().GROUP().GetText());
+            Context = context;
+            Group = int.Parse(context.var_group().GROUP().GetText());
         }
     }
-
     public class VarArgVar : IVarArg
     {
         public ArgContext Context { get; }
         public ResultVar Var { get; }
-        public VarArgVar(ArgContext var)
+        public VarArgVar(ArgContext context)
         {
-            Context = var;
-            Var = new ResultVar(var.var());
+            Context = context;
+            Var = new ResultVar(context.var());
         }
     }
 }
