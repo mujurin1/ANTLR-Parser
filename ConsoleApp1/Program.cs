@@ -8,66 +8,70 @@ class Program
 {
     public static void Main()
     {
-        var res = Replacer.Replace("$acd$1$$$-$$1$$$aaa$-${ repeat,  $10, 1,  ${rnd,a$,as$$d}  }おわり$$");
-        Replacer.ToString(res);
-
+        var res = Replacer.Replace(@"${vVa,$0,$\\-,\\aa\,\\\$,\,,\\,,,,\}}");
+        Console.WriteLine(Replacer.ToString(res));
         Console.WriteLine();
 
-        foreach (var item in new (string, string, string)[] {
+        foreach (var (input, regex, replace) in new (string, string, string)[] {
             (
-                "1d1   1d1000",
+                "1d100",
                 "1d([1-9][0-9]*)",
-                "${rnd, $1}"
+                "${DICE, $1}"
             ), (
-                "1d1   1d1000",
-                "1d([1-9][0-9]*)",
-                "${rnd, $1}"
+                "YESおみくじ",
+                "おみくじ",
+                "${OMIKUJI}"
             ), (
+                // 複数マッチする場合は最初の１つだけマッチする
+                "1d1000   1d2",
+                "1d([1-9][0-9]*)",
+                "${DICE, $1}"
+            ), (
+                // グループ番号が一致しない (その部分は "" が返る. エラーにはならない)
+                "1d1000",
+                "1d([1-9][0-9]*)",
+                "${DICE, $10}"
+            ), (
+                // Replace が変な場合の例
                 "1d1   1d1000",
                 "1d([1-9][0-9]*)",
-                "$-a{}$$a$rnd${rnd, $$}"
+                "$-a{}\\$a$DICE___${DICE, a}"
             ),
         }) {
-            var result = Replace(item.Item1, item.Item2, item.Item3);
+            var result = Replace(input, regex, replace);
             Console.WriteLine(result);
         }
     }
 
-    public static string Replace(string target, string regex, string replace)
+    public static string Replace(string input, string regex, string replace)
     {
-        var match = Regex.Match(target, regex);
-
-        if (!match.Success) return target;
+        var match = Regex.Match(input, regex);
+        if (!match.Success) return input;
 
         var res = Replacer.Replace(replace);
 
         var sb = new StringBuilder();
         foreach (var item in res) {
-            switch (item) {
-                case ResultText text:
-                    sb.Append(text.Text);
-                    break;
-                case ResultGroup group:
-                    sb.Append(match.Groups[group.Group].Value);
-                    break;
-                case ResultVar var:
-                    sb.Append(Vars(var, match));
-                    break;
-                case ResultEscapeDoller or ResultSingleDoller _:
-                    sb.Append('$');
-                    break;
-            }
+            sb.Append(
+                item switch {
+                    AnalyzeGroup group => match.Groups[group.Group].Value,
+                    AnalyzeFn var => Fns(var, match),
+                    AnalyzeText text => text.Text,
+                    AnalyzeWarn warn => warn.Text,
+                    _ => throw new Exception(),
+                }
+            );
         }
 
         return sb.ToString();
     }
 
-    public static string ResutToText(IResultType item, Match match)
+    public static string ResutToText(IAnalyzeType item, Match match)
     {
         return item switch {
-            ResultText text => text.Text,
-            ResultGroup group => match.Groups[group.Group].Value,
-            ResultVar var => Vars(var, match),
+            AnalyzeText text => text.Text,
+            AnalyzeGroup group => match.Groups[group.Group].Value,
+            AnalyzeFn var => Fns(var, match),
             _ => throw new Exception(),
         };
     }
@@ -75,31 +79,35 @@ class Program
 
 
     private static Random rnd = new();
-    public static string Vars(ResultVar var, Match match)
+    public static string Fns(AnalyzeFn var, Match match)
     {
-        if (var.Name == "no") {
-            return "[行番号]";
-        } else if (var.Name == "name") {
-            return "[名前]";
-        } else if (var.Name == "rnd") {
-            if (var.Args.Length < 1) goto END;
-            var text = ArgToText(var.Args[0], match);
-            if (!int.TryParse(text, out int num)) goto END;
-
-            return rnd.Next(num).ToString();
-        } else if (var.Name == "omikuji") {
-            return "[おみくじ]";
-        }
-    // どれにも一致しない場合は元々の文字をそのまま返す
-    END: return var.Context.GetText();
+        return var.Name switch {
+            "NO" => "[行番号]",
+            "NAME" => "[名前]",
+            "DICE" => Dice(var, match),
+            "OMIKUJI" => "[おみくじ]",
+            _ => var.Context.GetText(),
+        };
     }
 
-    public static string ArgToText(IVarArg arg, Match match)
+    private static string Dice(AnalyzeFn var, Match match)
+    {
+        if (var.Args.Length >= 1 &&
+            ArgToText(var.Args[0], match) is var text &&
+            int.TryParse(text, out int num)
+        )
+            return (rnd.Next(num) + 1).ToString();
+
+        return var.Context.GetText();
+    }
+
+    public static string ArgToText(IFnArg arg, Match match)
     {
         return arg switch {
-            VarArgText text => text.Text,
-            VarArgGroup group => match.Groups[group.Group].Value,
-            VarArgVar var => ResutToText(var.Var, match),
+            FnArgGroup group => match.Groups[group.Group].Value,
+            FnArgFn var => ResutToText(var.Fn, match),
+            FnArgText text => text.Text,
+            FnArgWarn warn => warn.Text,
             _ => throw new Exception(),
         };
     }
